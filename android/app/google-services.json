@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "125418306835",
+    "project_id": "msg-basic",
+    "storage_bucket": "msg-basic.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:125418306835:android:20df4c0f8057e0906ceee6",
+        "android_client_info": {
+          "package_name": "com.andre.mp.msg_basic"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "125418306835-0vnnp09gigcobbkm0qter4hifef4u7ro.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2cFcjLnA6yaloMicTVHa0FFcBmjTUrc8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "125418306835-0vnnp09gigcobbkm0qter4hifef4u7ro.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
