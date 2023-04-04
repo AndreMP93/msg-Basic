@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:msg_basic/helper/ScreenRoutes.dart';
 import 'package:msg_basic/resources/AppTheme.dart';
 import 'package:msg_basic/resources/AppStrings.dart';
+import 'package:msg_basic/viewmodel/AuthUserViewModel.dart';
+import 'package:msg_basic/viewmodel/RegisterUserViewModel.dart';
+import 'package:msg_basic/viewmodel/UserProfileViewModel.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -17,12 +20,19 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: AppStrings.appName,
-      theme: AppTheme.mainTheme,
-      initialRoute: "/",
-      onGenerateRoute: ScreenRoutes.generateRoutes,
+    return MultiProvider(
+        providers: [
+          Provider<AuthUserViewModel>(create: (_)=> AuthUserViewModel()),
+          Provider<RegisterUserViewModel>(create: (_)=> RegisterUserViewModel()),
+          Provider<UserProfileViewModel>(create: (_)=> UserProfileViewModel()),
+        ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: AppStrings.appName,
+        theme: AppTheme.mainTheme,
+        initialRoute: "/",
+        onGenerateRoute: ScreenRoutes.generateRoutes,
+      ),
     );
   }
 }

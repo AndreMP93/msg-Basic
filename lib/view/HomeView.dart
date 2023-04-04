@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:msg_basic/helper/ScreenRoutes.dart';
 import 'package:msg_basic/resources/AppStrings.dart';
 import 'package:msg_basic/view/ConversationTab.dart';
 import 'package:msg_basic/view/ContactTab.dart';
+import 'package:msg_basic/viewmodel/AuthUserViewModel.dart';
+import 'package:provider/provider.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
@@ -12,6 +15,7 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin {
 
+  late AuthUserViewModel _authUserViewModel;
   bool _isUserLogged = true;
   final List<String> _menuItems = <String>[AppStrings.menuItemProfile, AppStrings.menuItemLogout];
   late TabController _tabController;
@@ -24,6 +28,9 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
+
+    _authUserViewModel = Provider.of<AuthUserViewModel>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(AppStrings.appName),
@@ -59,7 +66,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
       ),
 
       body: (!_isUserLogged)
-          ? Center(child: CircularProgressIndicator(),)
+          ? const Center(child: CircularProgressIndicator(),)
           : TabBarView(
           controller: _tabController,
           children: [
@@ -72,8 +79,11 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
   _selectedMenuItem(String selectedItem) async {
     switch (selectedItem) {
       case AppStrings.menuItemProfile:
+        Navigator.pushNamed(context, ScreenRoutes.USER_PROFILE);
         break;
       case AppStrings.menuItemLogout:
+        await _authUserViewModel.logout();
+        Navigator.pushReplacementNamed(context, ScreenRoutes.LOGIN_ROUTE);
         break;
     }
   }

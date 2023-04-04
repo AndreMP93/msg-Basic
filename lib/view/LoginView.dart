@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:msg_basic/helper/ScreenRoutes.dart';
+import 'package:msg_basic/model/AppUser.dart';
 import 'package:msg_basic/resources/AppColors.dart';
+import 'package:msg_basic/viewmodel/AuthUserViewModel.dart';
 import 'package:msg_basic/widget/CustomTextField.dart';
+import 'package:provider/provider.dart';
 import 'package:validadores/Validador.dart';
 import 'package:msg_basic/resources/AppStrings.dart';
 
@@ -13,20 +18,37 @@ class LoginView extends StatefulWidget {
 
 class _LoginViewState extends State<LoginView> {
 
+  late AuthUserViewModel _authUserViewModel;
   final _formKey = GlobalKey<FormState>();
   bool _isUserLogged = false;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      await _authUserViewModel.checkLoggedUser();
+      if(_authUserViewModel.isUserLogging){
+        Navigator.pushReplacementNamed(context, ScreenRoutes.HOME_ROUTE);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+
+    _authUserViewModel = Provider.of<AuthUserViewModel>(context);
+
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.all(16),
         decoration: const BoxDecoration(color: AppColors.primaryColor),
         child: Center(
           child: SingleChildScrollView(
-            child: (_isUserLogged)
-                ?const CircularProgressIndicator()
+            child: (_authUserViewModel.isUserLogging)
+                ?const CircularProgressIndicator(color: Colors.white,)
                 : Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -35,6 +57,7 @@ class _LoginViewState extends State<LoginView> {
                     color: Colors.white,
                     size: 150,
                   ),
+                  const SizedBox(height: 24,),
                   Form(
                     key: _formKey,
                     child: Column(children: [
@@ -50,7 +73,7 @@ class _LoginViewState extends State<LoginView> {
                         },
                       ),
 
-                      const SizedBox(height: 8,),
+                      const SizedBox(height: 12,),
                       CustomTextField(hintText: AppStrings.passwordLabel,
                         controller: _passwordController,
                         obscureText: true,
@@ -65,12 +88,13 @@ class _LoginViewState extends State<LoginView> {
                     )
                   ),
 
-                  const SizedBox(height: 8,),
+                  const SizedBox(height: 12,),
 
                   TextButton(
                     onPressed: () async {
                       if(_formKey.currentState!.validate()){
-
+                        AppUser user = AppUser(email: _emailController.text, password: _passwordController.text);
+                        await _login(user);
                       }
                     },
                     style: TextButton.styleFrom(
@@ -84,7 +108,7 @@ class _LoginViewState extends State<LoginView> {
                           color: Colors.white, fontSize: 20),
                     ),
                   ),
-                  const SizedBox(height: 16,),
+                  const SizedBox(height: 24,),
                   Center(
                     child: GestureDetector(
                       child: const Text(
@@ -92,7 +116,7 @@ class _LoginViewState extends State<LoginView> {
                         style: TextStyle(color: Colors.white, fontSize: 18),
                       ),
                       onTap: () {
-
+                        Navigator.pushNamed(context, ScreenRoutes.REGISTER_ROUTE);
                       },
                     ),
                   ),
@@ -102,5 +126,12 @@ class _LoginViewState extends State<LoginView> {
         ),
       ),
     );
+  }
+
+  Future<void> _login(AppUser user) async {
+    await _authUserViewModel.login(user);
+    if(_authUserViewModel.isUserLogging){
+      Navigator.pushReplacementNamed(context, ScreenRoutes.HOME_ROUTE);
+    }
   }
 }
