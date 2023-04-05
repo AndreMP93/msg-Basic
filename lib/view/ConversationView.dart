@@ -25,7 +25,6 @@ class _ConversationViewState extends State<ConversationView> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       //await _messageViewModel.getListMessages(widget.sender, widget.recipient);
