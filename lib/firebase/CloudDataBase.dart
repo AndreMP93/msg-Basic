@@ -1,8 +1,9 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:msg_basic/model/AppUser.dart';
+import 'package:msg_basic/model/Conversation.dart';
+import 'package:msg_basic/model/Message.dart';
 import 'package:msg_basic/resources/AppStrings.dart';
 
 class CloudDataBase {
@@ -10,7 +11,7 @@ class CloudDataBase {
   final _fireStore = FirebaseFirestore.instance;
   final FirebaseStorage _storageInstance = FirebaseStorage.instance;
   final String _userCollection = "users";
-  final String _convesationsCollection = "convesations";
+  final String _conversationsCollection = "conversations";
   final String _messagesCollection = "messages";
   final String _profilePicturePath = "profile";
   final String _imgMessagePath = "imgMessage";
@@ -67,6 +68,68 @@ class CloudDataBase {
     }
   }
 
+  Future<List<AppUser>> getAllUsers() async {
+    List<AppUser> users = [];
+    try{
+      final result = await _fireStore.collection(_userCollection).orderBy("name").get();
+      for(var document in result.docs){
+        AppUser user = AppUser.map(document.data());
+        users.add(user);
+      }
+    }catch(error){
+      print("ERROR: getAllUsers() -> $error");
+    }
+    return users;
+  }
+
+  Future<Stream<QuerySnapshot>?> getAllUserConversations(AppUser user) async {
+    try{
+      return await _fireStore
+          .collection(_userCollection)
+          .doc(user.id)
+          .collection(_conversationsCollection)
+          .orderBy('timestamp', descending: true)
+          .snapshots();
+    }catch (error){
+      print("ERROR: getAllUserCoversations");
+    }
+    return null;
+  }
+
+  Future<String> createConversation(AppUser sender, AppUser recipient, Conversation conversation) async {
+    try{
+      await _fireStore.collection(_userCollection)
+          .doc(sender.id)
+          .collection(_conversationsCollection)
+          .doc(recipient.id)
+          .set(conversation.toMap());
+      return "";
+    }catch (e){
+      print("ERROR: createConversation() -> \n$e");
+      return e.toString();
+    }
+  }
+
+  Future<String> updateConversation(AppUser sender, AppUser recipient, Conversation conversation) async {
+    try{
+      String? uId = sender.id;
+      String? recipientId = recipient.id;
+      if (uId != null && recipientId != null){
+        await _fireStore
+            .collection(_userCollection)
+            .doc(uId)
+            .collection(_conversationsCollection)
+            .doc(recipientId)
+            .update(conversation.toMap());
+        return "";
+      }
+      return "Verifique se o usuario está logado";
+    }catch(error){
+      print("ERRoR: updateConversation() -> $error");
+      return "Falha ao atualizar dados do Usuário: $error";
+    }
+  }
+
   Future<UploadTask?> uploadProfilePicture(File imagem, String userID) async {
     try{
       final pastaRaiz = _storageInstance.ref();
@@ -90,6 +153,62 @@ class CloudDataBase {
       return null;
     }
     return null;
+  }
+
+  Future<String> sendMessage(AppUser sender, AppUser recipient, Message message) async {
+    try{
+      String? uId = sender.id;
+      String? recipientId = recipient.id;
+      if(message.timestamp == -1){
+        message.timestamp = Timestamp.now().microsecondsSinceEpoch;
+      }
+      if(uId != null && recipientId != null){
+        await _fireStore
+            .collection(_userCollection)
+            .doc(uId)
+            .collection(_conversationsCollection)
+            .doc(recipientId)
+            .collection(_messagesCollection)
+            .add(message.toMap());
+        return "";
+      }
+      return "Verifique se o usuário está online";
+
+    }catch (e){
+      print(e);
+      return "Falha ao enviar a sua mensagem.\n$e";
+    }
+  }
+
+  Future<Stream<QuerySnapshot>> getListMessagesStream(AppUser sender, AppUser recipient) async {
+    return _fireStore
+        .collection(_userCollection)
+        .doc(sender.id)
+        .collection(_conversationsCollection)
+        .doc(recipient.id)
+        .collection(_messagesCollection)
+        .orderBy('timestamp', descending: true)
+        .snapshots();
+  }
+
+  Future<String> deleteMessage(AppUser sender, AppUser recipient, Message message) async{
+    try{
+      String? uId = sender.id;
+      String? recipientId = recipient.id;
+      if(uId != null && recipientId != null) {
+        await _fireStore
+            .collection(_userCollection)
+            .doc(uId)
+            .collection(_conversationsCollection)
+            .doc(recipientId)
+            .collection(_messagesCollection)
+            .doc(message.idMessage).delete();
+        return "";
+      }
+      return "Falha ao deletar mensagem.";
+    }catch (e){
+      return "Falha ao deletar mensagem.";
+    }
   }
 
   Future<String> deletePhoto(String urlPhoto) async {

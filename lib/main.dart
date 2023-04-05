@@ -4,6 +4,8 @@ import 'package:msg_basic/helper/ScreenRoutes.dart';
 import 'package:msg_basic/resources/AppTheme.dart';
 import 'package:msg_basic/resources/AppStrings.dart';
 import 'package:msg_basic/viewmodel/AuthUserViewModel.dart';
+import 'package:msg_basic/viewmodel/HomeViewModel.dart';
+import 'package:msg_basic/viewmodel/MessageViewModel.dart';
 import 'package:msg_basic/viewmodel/RegisterUserViewModel.dart';
 import 'package:msg_basic/viewmodel/UserProfileViewModel.dart';
 import 'package:provider/provider.dart';
@@ -25,6 +27,8 @@ class MyApp extends StatelessWidget {
           Provider<AuthUserViewModel>(create: (_)=> AuthUserViewModel()),
           Provider<RegisterUserViewModel>(create: (_)=> RegisterUserViewModel()),
           Provider<UserProfileViewModel>(create: (_)=> UserProfileViewModel()),
+          Provider<HomeViewModel>(create: (_)=> HomeViewModel()),
+          Provider<MessageViewModel>(create: (_)=>MessageViewModel())
         ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

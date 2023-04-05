@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:msg_basic/helper/ScreenRoutes.dart';
+import 'package:msg_basic/model/AppUser.dart';
 import 'package:msg_basic/resources/AppStrings.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:msg_basic/view/ConversationTab.dart';
 import 'package:msg_basic/view/ContactTab.dart';
 import 'package:msg_basic/viewmodel/AuthUserViewModel.dart';
+import 'package:msg_basic/viewmodel/HomeViewModel.dart';
 import 'package:provider/provider.dart';
 
 class HomeView extends StatefulWidget {
@@ -16,7 +19,7 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin {
 
   late AuthUserViewModel _authUserViewModel;
-  bool _isUserLogged = true;
+  late HomeViewModel _homeViewModel;
   final List<String> _menuItems = <String>[AppStrings.menuItemProfile, AppStrings.menuItemLogout];
   late TabController _tabController;
 
@@ -24,12 +27,22 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      await _authUserViewModel.checkLoggedUser();
+      if(_authUserViewModel.currentUser!=null){
+        await _homeViewModel.getUserData(_authUserViewModel.currentUser!.id!);
+        await _homeViewModel.getAllContacts();
+        await _homeViewModel.getAllConversation(_homeViewModel.userData!);
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
 
     _authUserViewModel = Provider.of<AuthUserViewModel>(context);
+    _homeViewModel = Provider.of<HomeViewModel>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -65,14 +78,21 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
           ])
       ),
 
-      body: (!_isUserLogged)
-          ? const Center(child: CircularProgressIndicator(),)
-          : TabBarView(
-          controller: _tabController,
-          children: [
-            ConversationTab(),
-            ContactTab()
-          ]),
+      body: Observer(
+          builder: (_){
+            return (_homeViewModel.userData == null)
+                ? const Center(child: CircularProgressIndicator(),)
+                : TabBarView(
+                controller: _tabController,
+                children: [
+                  ConversationTab(conversations: _homeViewModel.listConversation, onTap: _openConversetion,),
+                  ContactTab(
+                      contacts: _homeViewModel.listContacts,
+                      onTap: _openConversetion
+                  )
+                ]);
+          }
+      )
     );
   }
 
@@ -86,5 +106,12 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
         Navigator.pushReplacementNamed(context, ScreenRoutes.LOGIN_ROUTE);
         break;
     }
+  }
+
+  _openConversetion(AppUser recipient) async {
+    Navigator.pushNamed(
+        context,
+        ScreenRoutes.CONVERSATION_ROUTE,
+        arguments: {"recipient": recipient, "sender": _homeViewModel.userData});
   }
 }
