@@ -1,17 +1,14 @@
-import 'package:chat_bubbles/bubbles/bubble_normal_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_bubble/chat_bubble.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:msg_basic/helper/GetImage.dart';
 import 'package:msg_basic/helper/MessageTypes.dart';
 import 'package:msg_basic/model/AppUser.dart';
 import 'package:msg_basic/model/Message.dart';
-import 'package:msg_basic/resources/AppColors.dart';
+import 'package:msg_basic/view/SendImageView.dart';
 import 'package:msg_basic/viewmodel/MessageViewModel.dart';
 import 'package:msg_basic/widget/ListMessagesWidget.dart';
 import 'package:provider/provider.dart';
 import 'package:msg_basic/widget/MessageSendingBox.dart';
-import 'package:msg_basic/resources/AppColors.dart';
 
 class ConversationView extends StatefulWidget {
   final AppUser sender;
@@ -47,11 +44,11 @@ class _ConversationViewState extends State<ConversationView> {
 
       body: Container(
         width: MediaQuery.of(context).size.width,
-        // decoration: const BoxDecoration(
-        //   image: DecorationImage(image: AssetImage("imagens/bg.png"),
-        //       fit: BoxFit.cover
-        //   ),
-        // ),
+        decoration: const BoxDecoration(
+          image: DecorationImage(image: AssetImage("images/bg.png"),
+              fit: BoxFit.cover
+          ),
+        ),
         child: SafeArea(
             child: Container(
               padding: const EdgeInsets.all(8),
@@ -79,7 +76,8 @@ class _ConversationViewState extends State<ConversationView> {
   Future _sendImageMessage() async {
     var foto = await GetImage.fromGallery();
     if (foto != null) {
-      _messageViewModel.sendImageMessage(widget.sender, widget.recipient, foto);
+      Navigator.push(context, MaterialPageRoute(builder: (_)=>SendImageView(image: foto)));
+      // _messageViewModel.sendImageMessage(widget.sender, widget.recipient, foto);
     }
   }
 }

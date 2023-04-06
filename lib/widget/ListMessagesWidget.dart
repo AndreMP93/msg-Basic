@@ -1,7 +1,5 @@
-import 'package:chat_bubbles/chat_bubbles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
-import 'package:mobx/mobx.dart';
 import 'package:msg_basic/helper/MessageTypes.dart';
 import 'package:msg_basic/model/AppUser.dart';
 import 'package:msg_basic/model/Message.dart';
@@ -72,15 +70,20 @@ class _ListMessagesWidgetState extends State<ListMessagesWidget> {
         padding: EdgeInsets.all(0),
         // margin: EdgeInsets.all(0),
         backGroundColor: color,
-        child: Center(
-          child: BubbleNormalImage(
-            id: 'id001',
-            image: Image.network(message.urlImage!),
-            color: color,
-            tail: true,
-            isSender: !isMyMessage,
-            delivered: false,
-          ),
+        child: Column(
+          children: [
+            Container(
+              padding: (isMyMessage) ? EdgeInsets.fromLTRB(5, 5, 20, 5): EdgeInsets.fromLTRB(20, 5, 5, 5),
+              constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width * 0.5,
+                  maxHeight: MediaQuery.of(context).size.width * 0.65,
+                minWidth: MediaQuery.of(context).size.width * 0.25,
+                minHeight: MediaQuery.of(context).size.width * 0.25,
+              ),
+              child: Image.network(message.urlImage!),
+            ),
+            Text("data"),
+          ],
         ),
       );
     }
