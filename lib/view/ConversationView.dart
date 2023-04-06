@@ -1,4 +1,6 @@
+import 'package:chat_bubbles/bubbles/bubble_normal_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_bubble/chat_bubble.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:msg_basic/helper/GetImage.dart';
 import 'package:msg_basic/helper/MessageTypes.dart';
@@ -9,6 +11,7 @@ import 'package:msg_basic/viewmodel/MessageViewModel.dart';
 import 'package:msg_basic/widget/ListMessagesWidget.dart';
 import 'package:provider/provider.dart';
 import 'package:msg_basic/widget/MessageSendingBox.dart';
+import 'package:msg_basic/resources/AppColors.dart';
 
 class ConversationView extends StatefulWidget {
   final AppUser sender;
@@ -27,7 +30,7 @@ class _ConversationViewState extends State<ConversationView> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      //await _messageViewModel.getListMessages(widget.sender, widget.recipient);
+      await _messageViewModel.getListMessages(widget.sender, widget.recipient);
     });
   }
 
@@ -38,6 +41,7 @@ class _ConversationViewState extends State<ConversationView> {
 
     return Scaffold(
       appBar: AppBar(
+        leadingWidth: 23,
         title: Text(widget.recipient.name!),
       ),
 
@@ -55,7 +59,7 @@ class _ConversationViewState extends State<ConversationView> {
                 children: [
                   Observer(builder: (_){
                     return ListMessagesWidget(
-                        messages: _messageViewModel.listaMessages,
+                        messages: _messageViewModel.listaMessages.toList(),
                         currentUser: widget.sender);
                   }),
                   MessageSendingBox(sendTextMessage: _sendMessade, sendImageMessage: _sendImageMessage)
@@ -69,13 +73,13 @@ class _ConversationViewState extends State<ConversationView> {
 
   Future _sendMessade(String text) async {
     Message msg = Message(idSender: widget.sender.id, text: text, messageType: MessageTypes.TEXT_MESSAGE);
-    await _messageViewModel.sendTextMessage(widget.sender, widget.recipient, msg);
+    await _messageViewModel.sendMessage(widget.sender, widget.recipient, msg);
   }
 
   Future _sendImageMessage() async {
     var foto = await GetImage.fromGallery();
     if (foto != null) {
-
+      _messageViewModel.sendImageMessage(widget.sender, widget.recipient, foto);
     }
   }
 }

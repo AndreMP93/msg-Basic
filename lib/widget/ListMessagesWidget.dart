@@ -2,11 +2,12 @@ import 'package:chat_bubbles/chat_bubbles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
 import 'package:mobx/mobx.dart';
+import 'package:msg_basic/helper/MessageTypes.dart';
 import 'package:msg_basic/model/AppUser.dart';
 import 'package:msg_basic/model/Message.dart';
 
 class ListMessagesWidget extends StatefulWidget {
-  ObservableList messages;
+  List<Message> messages;
   AppUser currentUser;
   ListMessagesWidget({required this.messages, required this.currentUser, Key? key})
       : super(key: key);
@@ -41,7 +42,7 @@ class _ListMessagesWidgetState extends State<ListMessagesWidget> {
 
   Widget _messageBallonWidget(Message message, bool isMyMessage) {
     Color color = (isMyMessage) ? Color(0xffbdacff) : Color(0xfff9f8ff);
-    if (message.urlImage == null) {
+    if (message.messageType == MessageTypes.TEXT_MESSAGE) {
       return ChatBubble(
           clipper: (isMyMessage)
               ? ChatBubbleClipper2(type: BubbleType.sendBubble)
@@ -69,15 +70,16 @@ class _ListMessagesWidgetState extends State<ListMessagesWidget> {
         alignment: (isMyMessage) ? Alignment.centerRight : Alignment.centerLeft,
         // margin: EdgeInsets.only(top: 20),
         padding: EdgeInsets.all(0),
+        // margin: EdgeInsets.all(0),
         backGroundColor: color,
-        child: IntrinsicWidth(
+        child: Center(
           child: BubbleNormalImage(
             id: 'id001',
             image: Image.network(message.urlImage!),
             color: color,
             tail: true,
-            isSender: isMyMessage,
-            delivered: true,
+            isSender: !isMyMessage,
+            delivered: false,
           ),
         ),
       );

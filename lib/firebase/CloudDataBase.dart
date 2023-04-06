@@ -221,4 +221,19 @@ class CloudDataBase {
       return "Erro ao deletar imagem: $e";
     }
   }
+
+  Future<String> uploadImageMessage(File imagem, AppUser sender, AppUser recipient) async {
+    try{
+      String imageName = DateTime.now().microsecondsSinceEpoch.toString();
+      final pastaRaiz = _storageInstance.ref();
+      final arquivo = pastaRaiz.child(_imgMessagePath).child(sender.id!).child(recipient.id!).child("$imageName.jpg");
+      UploadTask? task = arquivo.putFile(imagem);
+      final TaskSnapshot snapshot = await task.whenComplete(() => null);
+      String urlImage = await snapshot.ref.getDownloadURL();
+      return urlImage;
+    }catch (e){
+     print("ERrro: uploadImageMessage -> $e");
+      return "";
+    }
+  }
 }

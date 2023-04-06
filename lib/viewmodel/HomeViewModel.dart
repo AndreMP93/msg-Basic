@@ -43,6 +43,7 @@ abstract class _HomeViewModel with Store{
         Conversation conversation = Conversation.map(document.data() as Map<String, dynamic>);
         return conversation;
       }).toList());
+      listConversation.clear();
       listConversation.addAll(conversations);
       loadingConversation = false;
     });

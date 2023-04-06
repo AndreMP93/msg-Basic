@@ -24,7 +24,7 @@ abstract class _MessageViewModel with Store{
   StreamSubscription<QuerySnapshot>? _messageStream;
 
 
-  Future sendTextMessage(AppUser sender, AppUser recipient, Message msg) async {
+  Future sendMessage(AppUser sender, AppUser recipient, Message msg) async {
     Conversation conversation = Conversation(recipent: recipient, lastMessage: msg.text??"", messageType: MessageTypes.TEXT_MESSAGE);
     msg.timestamp = DateTime.now().millisecondsSinceEpoch;
     if(listaMessages.isEmpty){
@@ -36,7 +36,7 @@ abstract class _MessageViewModel with Store{
     await _db.sendMessage(recipient, sender, msg);
     initConversation(sender, recipient, conversation);
 
-    await getListMessages(sender, recipient);
+    // await getListMessages(sender, recipient);
   }
 
   Future getListMessages(AppUser sender, AppUser recipient) async{
@@ -52,7 +52,6 @@ abstract class _MessageViewModel with Store{
             return msg;
           }).toList());
           listaMessages.addAll(messages);
-          print("getListMessages: -> ${listaMessages.length}");
         }
     );
   }
@@ -71,17 +70,13 @@ abstract class _MessageViewModel with Store{
     conversation.recipent = recipient;
   }
 
-  // Future sendImage(AppUser sender, AppUser recipient, File imagemFile) async{
-  //   Message msg = Message(idSender: sender.id!);
-  //   sendingImage = true;
-  //   String result = await _db.sendImageMessage(imagemFile, sender.id!, msg);
-  //   sendingImage = false;
-  //   if(result.isEmpty){
-  //     await sendMessage(sender, recipient, msg);
-  //   }else{
-  //     errorMessage = result;
-  //     sendingImage = false;
-  //   }
-  //
-  // }
+  Future sendImageMessage(AppUser sender, AppUser recipient, File imagemFile) async{
+    sendingImage = true;
+    String result = await _db.uploadImageMessage(imagemFile, sender, recipient);
+    if(result.isNotEmpty){
+      Message msg = Message(idSender: sender.id, messageType: MessageTypes.IMAGE_MESSAGE, urlImage: result, text: "");
+      await sendMessage(sender, recipient, msg);
+    }
+    sendingImage = false;
+  }
 }
