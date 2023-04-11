@@ -54,4 +54,11 @@ abstract class _HomeViewModel with Store{
     userData = await _db.getUserData(uId);
   }
 
+  Future<void> deleteConversation(AppUser sender, AppUser recipient) async {
+    String result = await _db.deleteConversation(sender, recipient);
+    if(result.isEmpty){
+      listConversation.removeWhere((element) => element.recipent.id == recipient.id);
+    }
+  }
+
 }

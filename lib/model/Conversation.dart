@@ -6,6 +6,7 @@ class Conversation{
   int timestamp = -1;
   String messageType = "text";
   int now =  DateTime.now().millisecondsSinceEpoch;
+  bool isSelected = false;
 
   Conversation({
     required this.recipent,

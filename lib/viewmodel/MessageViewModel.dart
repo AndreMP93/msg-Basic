@@ -25,18 +25,19 @@ abstract class _MessageViewModel with Store{
 
 
   Future sendMessage(AppUser sender, AppUser recipient, Message msg) async {
-    Conversation conversation = Conversation(recipent: recipient, lastMessage: msg.text??"", messageType: MessageTypes.TEXT_MESSAGE);
-    msg.timestamp = DateTime.now().millisecondsSinceEpoch;
-    if(listaMessages.isEmpty){
-      initConversation(sender, recipient, conversation);
-    }else{
-      updateConversation(sender, recipient, conversation);
+    if(msg.text != null && msg.text!.isNotEmpty){
+      Conversation conversation = Conversation(recipent: recipient, lastMessage: msg.text??"", messageType: MessageTypes.TEXT_MESSAGE);
+      msg.timestamp = DateTime.now().millisecondsSinceEpoch;
+      if(listaMessages.isEmpty){
+        initConversation(sender, recipient, conversation);
+      }else{
+        updateConversation(sender, recipient, conversation);
+      }
+      await _db.sendMessage(sender, recipient, msg);
+      await _db.sendMessage(recipient, sender, msg);
     }
-    await _db.sendMessage(sender, recipient, msg);
-    await _db.sendMessage(recipient, sender, msg);
-    initConversation(sender, recipient, conversation);
+    // initConversation(sender, recipient, conversation);
 
-    // await getListMessages(sender, recipient);
   }
 
   Future getListMessages(AppUser sender, AppUser recipient) async{
@@ -70,13 +71,33 @@ abstract class _MessageViewModel with Store{
     conversation.recipent = recipient;
   }
 
-  Future sendImageMessage(AppUser sender, AppUser recipient, File imagemFile) async{
+  Future sendImageMessage(AppUser sender, AppUser recipient, File imagemFile, [String text = ""]) async{
     sendingImage = true;
-    String result = await _db.uploadImageMessage(imagemFile, sender, recipient);
-    if(result.isNotEmpty){
-      Message msg = Message(idSender: sender.id, messageType: MessageTypes.IMAGE_MESSAGE, urlImage: result, text: "");
-      await sendMessage(sender, recipient, msg);
+    Message msg = Message(idSender: sender.id, messageType: MessageTypes.IMAGE_MESSAGE, urlImage: "", text: text);
+    msg.timestamp = DateTime.now().millisecondsSinceEpoch;
+    Conversation conversation = Conversation(recipent: recipient, lastMessage: msg.text??"", messageType: MessageTypes.IMAGE_MESSAGE);
+    if(listaMessages.isNotEmpty){
+      await _db.createConversation(sender, recipient, conversation);
+    }else{
+      await _db.createConversation(sender, recipient, conversation);
+    }
+    String resultSend = await _db.sendMessage(sender, recipient, msg);
+    if(resultSend.isEmpty){
+      String result = await _db.uploadImageMessage(imagemFile, sender, recipient);
+      if(result.isNotEmpty){
+        msg.urlImage = result;
+        await _db.updateMessage(sender, recipient, msg);
+        await _db.createConversation(recipient, sender, conversation);
+        await _db.sendMessage(recipient, sender, msg);
+      }
     }
     sendingImage = false;
+  }
+
+  Future<void> deleteMessage(AppUser sender, AppUser recipient, Message msg) async {
+    String result = await _db.deleteMessage(sender, recipient, msg);
+    if(result.isEmpty){
+      listaMessages.removeWhere((element) => element.id == msg.id);
+    }
   }
 }

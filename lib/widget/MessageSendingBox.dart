@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 class MessageSendingBox extends StatefulWidget {
 
-  Function(String) sendTextMessage;
-  Function() sendImageMessage;
+  final Function(String) sendTextMessage;
+  final Function() sendImageMessage;
 
-  MessageSendingBox({
+  const MessageSendingBox({
     required this.sendTextMessage,
     required this.sendImageMessage,
     Key? key}) : super(key: key);
@@ -16,6 +16,7 @@ class MessageSendingBox extends StatefulWidget {
 
 class _MessageSendingBoxState extends State<MessageSendingBox> {
   final TextEditingController _messageController = TextEditingController();
+  bool sendMessage = false;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +34,7 @@ class _MessageSendingBoxState extends State<MessageSendingBox> {
                 style: const TextStyle(fontSize: 20),
                 decoration: InputDecoration(
                     contentPadding:
-                    const EdgeInsets.fromLTRB(32, 8, 32, 8),
+                    const EdgeInsets.fromLTRB(32, 8, 0, 8),
                     hintText: "Digite a sua mensagem!",
                     filled: true,
                     fillColor: Colors.white,
@@ -43,7 +44,9 @@ class _MessageSendingBoxState extends State<MessageSendingBox> {
                     prefixIcon: IconButton(
                       icon: const Icon(Icons.camera_alt),
                       onPressed: () async {
-                        await widget.sendImageMessage();
+                        if(!sendMessage){
+                          await widget.sendImageMessage();
+                        }
                       },
                     )
                 ),
@@ -55,9 +58,11 @@ class _MessageSendingBoxState extends State<MessageSendingBox> {
               mini: true,
               onPressed: () async {
 
-                if(_messageController.text.isNotEmpty){
+                if(!sendMessage){
+                  sendMessage = true;
                   await widget.sendTextMessage(_messageController.text);
                   _messageController.clear();
+                  sendMessage = false;
                 }
               },
               child: const Icon(Icons.send, color: Colors.white,)

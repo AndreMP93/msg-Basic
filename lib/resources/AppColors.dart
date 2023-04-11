@@ -7,6 +7,8 @@ class AppColors{
   static const Color primaryColor = Color(0xff7260d4);
   static const Color senderBalloonColor = Color(0xffbdacff);
   static const Color buttonColor = Color(0xff483d84);
+  static const Color transparent = Color.fromRGBO(0, 0, 0, 0.0);
+  static const Color selectedMessageColor = Color.fromRGBO(114, 96, 212, 0.7);
   static final customPrimaySwatch = MaterialColor(primaryColor.value, {
     50: primaryColor.withOpacity(0.1),
     100: primaryColor.withOpacity(0.2),

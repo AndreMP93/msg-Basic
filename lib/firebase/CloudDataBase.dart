@@ -130,6 +130,20 @@ class CloudDataBase {
     }
   }
 
+  Future<String> deleteConversation(AppUser sender, AppUser recipient) async {
+    try{
+      await _fireStore.collection(_userCollection)
+          .doc(sender.id)
+          .collection(_conversationsCollection)
+          .doc(recipient.id)
+          .delete();
+      return "";
+    }catch (e){
+      print("ERROR: deleteConversation() -> \n$e");
+      return e.toString();
+    }
+  }
+
   Future<UploadTask?> uploadProfilePicture(File imagem, String userID) async {
     try{
       final pastaRaiz = _storageInstance.ref();
@@ -163,21 +177,43 @@ class CloudDataBase {
         message.timestamp = Timestamp.now().microsecondsSinceEpoch;
       }
       if(uId != null && recipientId != null){
-        await _fireStore
+        final task = await _fireStore
             .collection(_userCollection)
             .doc(uId)
             .collection(_conversationsCollection)
             .doc(recipientId)
             .collection(_messagesCollection)
             .add(message.toMap());
+        message.id = task.id;
+        updateMessage(sender, recipient, message);
         return "";
       }
-      return "Verifique se o usuário está online";
+    }catch (e){
+      print("Falha ao enviar a sua mensagem.\n$e");
+    }
+    return "Falha ao enviar a sua mensagem.";
+  }
+
+  Future<String> updateMessage(AppUser sender, AppUser recipient, Message message) async {
+    try{
+      String? uId = sender.id;
+      String? recipientId = recipient.id;
+      if(uId != null && recipientId != null){
+        await _fireStore
+            .collection(_userCollection)
+            .doc(uId)
+            .collection(_conversationsCollection)
+            .doc(recipientId)
+            .collection(_messagesCollection)
+            .doc(message.id)
+            .update(message.toMap());
+        return "";
+      }
 
     }catch (e){
-      print(e);
-      return "Falha ao enviar a sua mensagem.\n$e";
+      print("ERROR: Erro ao atualizar os dados da mensagem -> $e");
     }
+    return "ERROR: Erro ao atualizar os dados da mensagem.";
   }
 
   Future<Stream<QuerySnapshot>> getListMessagesStream(AppUser sender, AppUser recipient) async {
@@ -202,7 +238,7 @@ class CloudDataBase {
             .collection(_conversationsCollection)
             .doc(recipientId)
             .collection(_messagesCollection)
-            .doc(message.idMessage).delete();
+            .doc(message.id).delete();
         return "";
       }
       return "Falha ao deletar mensagem.";

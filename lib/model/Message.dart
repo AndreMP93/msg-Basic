@@ -1,13 +1,16 @@
+import 'dart:io';
+
 class Message{
-  late String _idMessage;
+  late String? id;
   String? messageType;
   String? idSender;
   String? text;
   String? urlImage;
   int timestamp =-1;
-
+  bool isSelected = false;
   Message({
     required this.idSender,
+    this.id,
     this.messageType,
     this.text,
     this.urlImage,
@@ -15,6 +18,7 @@ class Message{
   });
 
   Message.map(Map<String, dynamic> map){
+    id = map["id"];
     idSender = map["idUsuario"];
     messageType = map["messageType"];
     text = map["texto"]??"";
@@ -24,6 +28,7 @@ class Message{
 
   Map<String, dynamic> toMap(){
     Map<String, dynamic> map = {
+      "id": id,
       "idUsuario" : idSender,
       "messageType": messageType,
       "texto" : text,
@@ -31,12 +36,6 @@ class Message{
       "timestamp" : timestamp
     };
     return map;
-  }
-
-  String get idMessage => _idMessage;
-
-  set idMessage(String value) {
-    _idMessage = value;
   }
 
 }
