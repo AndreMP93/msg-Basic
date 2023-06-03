@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:mobx/mobx.dart';
-import 'package:msg_basic/firebase/CloudDataBase.dart';
+import 'package:msg_basic/service/CloudDataBase.dart';
 import 'package:msg_basic/model/AppUser.dart';
 import 'package:msg_basic/resources/AppStrings.dart';
 

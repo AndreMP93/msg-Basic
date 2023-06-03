@@ -20,16 +20,16 @@ class ScreenRoutes{
         return MaterialPageRoute(builder: (_)=> const LoginView());
 
       case LOGIN_ROUTE:
-        return MaterialPageRoute(builder: (_)=> LoginView());
+        return MaterialPageRoute(builder: (_)=> const LoginView());
 
       case REGISTER_ROUTE:
-        return MaterialPageRoute(builder: (_)=> RegisterUserView());
+        return MaterialPageRoute(builder: (_)=> const RegisterUserView());
 
       case HOME_ROUTE:
         return MaterialPageRoute(builder: (_)=> const HomeView());
 
       case USER_PROFILE:
-        return MaterialPageRoute(builder: (_)=> UserProfileView());
+        return MaterialPageRoute(builder: (_)=> const UserProfileView());
 
       case CONVERSATION_ROUTE:
         final Object? args = setting.arguments;

@@ -1,5 +1,5 @@
 import 'package:mobx/mobx.dart';
-import 'package:msg_basic/firebase/AuthUser.dart';
+import 'package:msg_basic/service/AuthUser.dart';
 import 'package:msg_basic/model/AppUser.dart';
 
 part 'AuthUserViewModel.g.dart';

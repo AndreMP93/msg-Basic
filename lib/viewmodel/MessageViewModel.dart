@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mobx/mobx.dart';
-import 'package:msg_basic/firebase/CloudDataBase.dart';
+import 'package:msg_basic/service/CloudDataBase.dart';
 import 'package:msg_basic/helper/MessageTypes.dart';
 import 'package:msg_basic/model/AppUser.dart';
 import 'package:msg_basic/model/Conversation.dart';
