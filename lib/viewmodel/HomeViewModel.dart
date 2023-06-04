@@ -4,7 +4,7 @@ import 'package:mobx/mobx.dart';
 import 'package:msg_basic/service/CloudDataBase.dart';
 import 'package:msg_basic/model/AppUser.dart';
 import 'package:msg_basic/model/Conversation.dart';
-import 'package:msg_basic/service/ConversationRepository.dart';
+import 'package:msg_basic/service/repository/ConversationRepository.dart';
 part 'HomeViewModel.g.dart';
 
 class HomeViewModel = _HomeViewModel with _$HomeViewModel;
