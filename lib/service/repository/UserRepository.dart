@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:msg_basic/model/AppUser.dart';
+import 'package:msg_basic/model/ResultModel.dart';
 import 'package:msg_basic/resources/AppStrings.dart';
 import 'package:msg_basic/service/constants/AppConstants.dart';
 
@@ -14,32 +15,44 @@ class UserRepository{
   }
   UserRepository._internal();
 
-  Future<AppUser?> getUserData(String userId) async {
+  Future<ResultModel<AppUser>> getUserData(String userId) async {
     try{
-      final result = await _getUserRef().doc(userId).get();
-      if(result.data()!=null){
-        Map<String, dynamic> map = result.data()!;
-        AppUser appUser = AppUser.map(map);
-        return appUser;
-      }
-      return null;
+      var result = ResultModel<AppUser>.loading();
+      await _getUserRef()
+          .doc(userId)
+          .get()
+          .then((value){
+        var map = value.data();
+        if(map != null){
+          result = ResultModel.success(AppUser.map(map));
+        }else{
+          result =  ResultModel.error(AppStrings.errorGettingUserData);
+        }
+      });
+      return result;
     }catch(error){
       print("ERROR: getUserData() $error");
-      return null;
+      return ResultModel.error(error.toString());
     }
   }
 
-  Future<String> updateUserData(AppUser user) async {
+  Future<ResultModel<void>> updateUserData(AppUser user) async {
     try{
       String? userId = user.id;
+      var resultUpdate = ResultModel.loading();
       if (userId != null){
-        await _getUserRef().doc(userId).update(user.toMap());
-        return "";
+        await _getUserRef()
+            .doc(userId)
+            .update(user.toMap()).then((value) => {
+          resultUpdate = ResultModel.success(Null)
+        }).onError((error, stackTrace) => {
+          resultUpdate = ResultModel.error(AppStrings.updateDataUserError)
+        });
       }
-      return AppStrings.userLoggedOut;
+      return resultUpdate;
     }catch(error){
       print("ERROR: updateUserData() -> ${AppStrings.updateDataUserError} $error");
-      return "${AppStrings.updateDataUserError}:: $error";
+      return ResultModel.error("${AppStrings.updateDataUserError}: $error");
     }
   }
 
